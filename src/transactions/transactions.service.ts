@@ -57,7 +57,7 @@ export class TransactionsService {
     return 'Sale completed successfully';
   }
 
-  findAll(transactionDate?: string) {
+  async findAll(transactionDate?: string) {
     
     const options : FindManyOptions<Transaction> = {
       relations: ['contents', 'contents.productId']
@@ -75,18 +75,36 @@ export class TransactionsService {
         transactionDate: Between(start, end)
       }
     }
-    return this.transactionRepository.find(options);
+    return await this.transactionRepository.find(options);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
+  async findOne(id: number) {
+    const transaction = await this.transactionRepository.findOne({
+      where:  {id},
+      relations: {contents: true}
+    });
+      
+    if (!transaction) {
+      throw new NotFoundException(`Transaction with id ${id} not found`);
+    }
+    return transaction;
   }
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
+  async remove(id: number) {
+    const transaction = await this.findOne(id);
+    
+    for(const contents of transaction.contents) {
+      //Increase stock for each product in the transaction
+      const product = await this.productRepository.findOneBy({id: contents.productId.id})
+      product.stock += contents.quantity;
+      await this.productRepository.save(product);
+      
+      //Remove transaction contents
+      const transactionContents = await this.transactionContentsRepository.findOneBy({id: contents.id});
+      await this.transactionContentsRepository.remove(transactionContents);
+    }
+    
+    await this.transactionRepository.remove(transaction);
+    return {message: `Transaction with id ${id} removed successfully`};
   }
 }

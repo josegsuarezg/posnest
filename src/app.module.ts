@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { typeOrmConfig } from './config/typeorm.comfig';
 import { ProductsModule } from './products/products.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { CouponsModule } from './coupons/coupons.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { TransactionsModule } from './transactions/transactions.module';
     }),
     CategoriesModule,
     ProductsModule,
-    TransactionsModule
+    TransactionsModule,
+    CouponsModule
   ],
 })
 export class AppModule {}

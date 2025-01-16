@@ -19,6 +19,9 @@ export class CreateTransactionDto {
   @IsNotEmpty({message: 'Total is Not Empty'})
   @IsNumber({}, {message: 'Total is not valid'})
   total: number
+  
+  @IsOptional()
+  coupon: string
 
   @IsArray()
   @ArrayNotEmpty({message: 'Contents is Not Empty'})
