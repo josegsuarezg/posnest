@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Between, FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TransactionContents, Transaction } from './entities/transaction.entity';
 import { Product } from 'src/products/entities/product.entity';
 import { endOfDay, isValid, startOfDay } from 'date-fns';
 import { parseISO } from 'date-fns/fp';
+import { CouponsService } from 'src/coupons/coupons.service';
 
 @Injectable()
 export class TransactionsService {
@@ -14,14 +14,27 @@ export class TransactionsService {
   constructor(
     @InjectRepository(Transaction) private readonly  transactionRepository: Repository<Transaction>,
     @InjectRepository(TransactionContents) private readonly  transactionContentsRepository: Repository<TransactionContents>,
-    @InjectRepository(Product) private readonly  productRepository: Repository<Product>
+    @InjectRepository(Product) private readonly  productRepository: Repository<Product>,
+    private readonly couponService: CouponsService
   ) {}
   async create(createTransactionDto: CreateTransactionDto) {
     
     await this.productRepository.manager.transaction(async (transactionEntityManager) => {
       
       const transaction = new Transaction();
-      transaction.total= createTransactionDto.contents.reduce((total, item) => total + (item.price * item.quantity), 0);
+      const total = transaction.total= createTransactionDto.contents.reduce((total, item) => total + (item.price * item.quantity), 0);
+      transaction.total = total;
+      
+      if(createTransactionDto.coupon) {
+        const coupon = await this.couponService.applyCoupon(createTransactionDto.coupon);
+        
+        const discount = total * (coupon.percentage/ 100);
+        transaction.coupon = coupon.name;
+        transaction.discount = discount;
+        transaction.total -= discount;
+      }
+      
+      
     
       for (const contents of createTransactionDto.contents) {
         

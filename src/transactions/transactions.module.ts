@@ -6,10 +6,11 @@ import { Transaction, TransactionContents } from './entities/transaction.entity'
 import { Product } from 'src/products/entities/product.entity';
 import { CategoriesModule } from 'src/categories/categories.module';
 import { ProductsModule } from 'src/products/products.module';
+import { CouponsModule } from 'src/coupons/coupons.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Transaction, TransactionContents, Product]),
-    CategoriesModule, ProductsModule, TransactionsModule
+    CategoriesModule, ProductsModule, TransactionsModule, CouponsModule
     
   ],
   controllers: [TransactionsController],
