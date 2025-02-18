@@ -17,7 +17,7 @@ import { CouponsModule } from './coupons/coupons.module';
     CategoriesModule,
     ProductsModule,
     TransactionsModule,
-    CouponsModule
+    CouponsModule,
   ],
 })
 export class AppModule {}

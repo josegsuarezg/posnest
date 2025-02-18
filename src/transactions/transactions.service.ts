@@ -3,10 +3,10 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { Between, FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TransactionContents, Transaction } from './entities/transaction.entity';
-import { Product } from 'src/products/entities/product.entity';
+import { Product } from '../products/entities/product.entity';
 import { endOfDay, isValid, startOfDay } from 'date-fns';
 import { parseISO } from 'date-fns/fp';
-import { CouponsService } from 'src/coupons/coupons.service';
+import { CouponsService } from '../coupons/coupons.service';
 
 @Injectable()
 export class TransactionsService {
